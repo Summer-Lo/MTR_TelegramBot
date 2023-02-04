@@ -1,5 +1,7 @@
 # Next Train information
-station = 'TML-SIH'
+user_line = 'TML'           # default
+user_sta = 'SIH'            # default
+station = user_line+"-"+user_sta
 dest = 'WKS'
 DIR = 'Down'
 

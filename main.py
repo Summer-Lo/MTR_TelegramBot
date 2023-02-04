@@ -10,6 +10,7 @@ from telepot.loop import MessageLoop
 import time
 # function file
 import client_config as hc
+import station_info as info
 
 # variables
 allowable_order = []
@@ -50,6 +51,8 @@ def information(chat_msg):
 
                     #print(allowable_order)
                     #print(allowable_data)
+                    response = "[INFO] The Next Train time information in \nLine:            " + info.line[hc.user_line] + " \nStation:      " + info.sta[hc.user_sta]
+                    telepot_bot.sendMessage(hc.chat_id, response)
                     for i in range(len(allowable_data)):
                         response = "Order :                " + allowable_data[i]['seq'] + "\n"
                         response = response + "Destination :    " + allowable_data[i]['dest'] + "\n"

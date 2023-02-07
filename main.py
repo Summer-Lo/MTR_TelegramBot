@@ -11,11 +11,13 @@ import time
 # function file
 import client_config as hc
 import station_info as info
+import telegram_token as tt
+
 
 # variables
 allowable_order = []
 allowable_data = []
-telepot_bot = telepot.Bot(hc.tg_bot_id)
+telepot_bot = telepot.Bot(tt.tg_bot_id)
 
 def information(chat_msg):
     global telepot_bot, allowable_order, allowable_data
@@ -34,68 +36,70 @@ def information(chat_msg):
     text = chat_msg['text']
     print("Sender: ",chat_id)
     print("Received text: ",text)
-    if (str(chat_id) == str(hc.chat_id)):
+    if (str(chat_id) == str(tt.chat_id)):
     # Information Function from user input
         if(str(text) == "Information" or str(text) == "information"):
             print("Information Message Received!")
             response = "[INFO]  The Next Train time information \nLine:            " + info.line[hc.user_line] + " \nStation:      " + info.sta[hc.user_sta]
-            telepot_bot.sendMessage(hc.chat_id, response)
+            telepot_bot.sendMessage(tt.chat_id, response)
         # ---------------- Down Case ----------------
             if(hc.DIR == 'Down'):
                 if(len(msg_dir_down) == 0):
                     response = "[INFO] ---------- Out of working hour ----------"
-                    telepot_bot.sendMessage(hc.chat_id, response)
+                    telepot_bot.sendMessage(tt.chat_id, response)
                 elif(msg_dir_down[1]['dest'] != hc.dest):
                     response = "[INFO] ---------- Invalid Input ----------"
-                    telepot_bot.sendMessage(hc.chat_id, response)
+                    telepot_bot.sendMessage(tt.chat_id, response)
                 else:
                     for i in range(len(msg_dir_down)):
                         if (msg_dir_down[i]['valid'] == 'Y' and datetime.strptime(msg_dir_up[i]['time'],"%Y-%m-%d %H:%M:%S") >= datetime.now()):
                             allowable_order.append(i)
                             allowable_data.append(msg_dir_down[i])
                     response = "[INFO]  The Next Train time information \nLine:            " + info.line[hc.user_line] + " \nStation:      " + info.sta[hc.user_sta]
-                    telepot_bot.sendMessage(hc.chat_id, response)
+                    telepot_bot.sendMessage(tt.chat_id, response)
                     for i in range(len(allowable_data)):
                         response = "Order :                " + allowable_data[i]['seq'] + "\n"
                         response = response + "Destination :   " + allowable_data[i]['dest'] + "\n"
                         response = response + "Arrive Time :   " + allowable_data[i]['time']
-                        telepot_bot.sendMessage(hc.chat_id, response)
+                        telepot_bot.sendMessage(tt.chat_id, response)
 
             # ---------------- Up Case----------------
             elif (hc.DIR == 'Up'):
                 if(len(msg_dir_up) == 0):
                     response = "[INFO] ---------- Out of working hour ----------"
-                    telepot_bot.sendMessage(hc.chat_id, response)
+                    telepot_bot.sendMessage(tt.chat_id, response)
                 elif(msg_dir_up[1]['dest'] != hc.dest):
                     response = "[INFO] ---------- Invalid Input ----------"
                     #print(response)
-                    telepot_bot.sendMessage(hc.chat_id, response)
+                    telepot_bot.sendMessage(tt.chat_id, response)
                 else:
                     for i in range(len(msg_dir_up)):
                         if (msg_dir_up[i]['valid'] == 'Y' and datetime.strptime(msg_dir_up[i]['time'],"%Y-%m-%d %H:%M:%S") >= datetime.now()):
                             allowable_order.append(i)
                             allowable_data.append(msg_dir_up[i])
                     response = "[INFO] The Next Train time information in \nLine:            " + info.line[hc.user_line] + " \nStation:      " + info.sta[hc.user_sta]
-                    telepot_bot.sendMessage(hc.chat_id, response)
+                    telepot_bot.sendMessage(tt.chat_id, response)
                     for i in range(len(allowable_data)):
                         response = "Order :               " + allowable_data[i]['seq'] + "\n"
                         response = response + "Destination :   " + allowable_data[i]['dest'] + "\n"
                         response = response + "Arrive Time :   " + allowable_data[i]['time']
-                        telepot_bot.sendMessage(hc.chat_id, response)
+                        telepot_bot.sendMessage(tt.chat_id, response)
 
             # ---------------- No Data Case ----------------
             if(len(allowable_data) == 0):
                 response = "[INFO] ------------------- No Data -------------------"
-                telepot_bot.sendMessage(hc.chat_id, response)
+                telepot_bot.sendMessage(tt.chat_id, response)
             # ---------------- Reset ----------------
             allowable_order = []            # Reset
             allowable_data = []             # Reset
+        
+        # Configuration function for user input
         # ---------------- Config stage  = 1 ---------------- 
         if(str(text) == "Config" or str(text) == "config"):         
             print("Config Message Received!")
             hc.config_stage = 1
             response = "[Config] Please input the Line for Configuration!"
-            telepot_bot.sendMessage(hc.chat_id, response)
+            telepot_bot.sendMessage(tt.chat_id, response)
 
         # ---------------- Config stage  = 2 ---------------- 
         if(hc.config_stage == 1):
@@ -103,10 +107,10 @@ def information(chat_msg):
                 hc.config_stage = 2
                 hc.user_line_temp = str(text)
                 response = "[Config] Please input the Station for Configuration!"
-                telepot_bot.sendMessage(hc.chat_id, response)
+                telepot_bot.sendMessage(tt.chat_id, response)
             elif (str(text) not in info.line and str(text) != "Config" and str(text) != "config"):
                 response = "[Config] --------- Invalid Input ---------\n[Config] ------- Please try again -------"
-                telepot_bot.sendMessage(hc.chat_id, response)
+                telepot_bot.sendMessage(tt.chat_id, response)
 
         # ---------------- Config stage  = 3 ---------------- 
         if(hc.config_stage == 2):
@@ -116,10 +120,10 @@ def information(chat_msg):
                 response = "[Config] Please type OK for confirm: \n"
                 response = response + "Inputed Line:          " + info.line[hc.user_line_temp] + "\n"
                 response = response + "Inputed Station:     " + info.sta[hc.user_sta_temp] + "\n"
-                telepot_bot.sendMessage(hc.chat_id, response)
+                telepot_bot.sendMessage(tt.chat_id, response)
             elif (str(text) not in info.line and str(text) not in info.sta and str(text) != "Config" and str(text) != "config"):
                 response = "[Config] --------- Invalid Input ---------\n[Config] -------- Please try again --------"
-                telepot_bot.sendMessage(hc.chat_id, response)
+                telepot_bot.sendMessage(tt.chat_id, response)
         
         # ---------------- Config stage  = 4 ---------------- 
         if(hc.config_stage == 3):
@@ -131,18 +135,44 @@ def information(chat_msg):
                 hc.user_line_temp = ""
                 hc.user_sta_temp = ""
                 response = "[Config] Configuration have been done!"
-                telepot_bot.sendMessage(hc.chat_id, response)
+                telepot_bot.sendMessage(tt.chat_id, response)
                 response = "[Info] ---------- Information for " + str(hc.user_sta) + " in " + str(hc.user_line) + " ----------"
-                telepot_bot.sendMessage(hc.chat_id, response)
+                telepot_bot.sendMessage(tt.chat_id, response)
+        
+        # Help function for user input
+        if(str(text) == "Help" or str(text) == "help"):
+            response = "[Help] ---------- Information for Line and Description ----------"
+            telepot_bot.sendMessage(tt.chat_id, response)
+            response = "Line:           Description:\n"
+            for x in range(len(info.list_line_key)):
+                response = response + info.list_line_key[x] + " ----------  " + info.list_line_val[x] + "\n"
+            telepot_bot.sendMessage(tt.chat_id, response)
+            response = "[Help] --------- Information for Station and Description ---------"
+            telepot_bot.sendMessage(tt.chat_id, response)
+            response = "Station:        Description:\n"
+            for x in range(len(info.list_sta_key)):
+                if(x == 0):                         # Airport Express
+                    response = response +  "\n-------- Airport Express --------\n"
+                elif(x == 5):                       # Tung Chung Line
+                    response = response +  "\n-------- Tung Chung Line --------\n"
+                elif(x == 13):                      # Tuen Ma Line 
+                    response = response +  "\n--------- Tuen Ma Line ----------\n"
+                elif(x == 40):                      # Tseung Kwan O Line
+                    response = response +  "\n------- Tseung Kwan O Line ------\n"
+                elif(x == 48):                      # East Rail Line
+                    response = response +  "\n--------- East Rail Line --------\n"
+                response = response + info.list_sta_key[x] + "  ----------  " + info.list_sta_val[x] + "\n"
+            telepot_bot.sendMessage(tt.chat_id, response)
             
+
 async def main():
     global telepot_bot
-    bot = telegram.Bot(hc.tg_bot_id)
+    bot = telegram.Bot(tt.tg_bot_id)
 
     async with bot:
         pass
         #print(await bot.get_me())
-        #await bot.send_message(text="Hello", chat_id=hc.chat_id)
+        #await bot.send_message(text="Hello", chat_id=tt.chat_id)
 
 if __name__ == '__main__':
     MessageLoop(telepot_bot, information).run_as_thread()

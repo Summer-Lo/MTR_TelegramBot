@@ -76,3 +76,18 @@ sta = {\
     'SHS' : 'Sheung Shui',\
     'LOW' : 'Lo Wu',\
     'LMC' : 'Lok Ma Chau'}
+
+list_line_key = []
+list_line_val = []
+for i, j in line.items():
+    list_line_key.append(str(i))
+    list_line_val.append(str(j))
+#print(list_line_key)
+#print(list_line_val)
+list_sta_key = []
+list_sta_val = []
+for i, j in sta.items():
+    list_sta_key.append(str(i))
+    list_sta_val.append(str(j))
+#print(list_sta_key)
+#print(list_sta_val)

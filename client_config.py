@@ -1,8 +1,10 @@
 # Next Train information
 user_line = 'TML'           # default
-user_line_temp = 'TML'      # temp
+user_line_temp = ''      # temp
 user_sta = 'SIH'            # default
-user_sta_temp = 'SIH'       # temp
+user_sta_temp = ''       # temp
+user_dest = 'HUH'
+user_dest_temp = ''
 station = user_line+"-"+user_sta
 dest = 'WKS'
 DIR = 'Down'

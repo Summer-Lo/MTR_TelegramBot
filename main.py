@@ -1,3 +1,10 @@
+"""
+@ Author    : Lo King Hin
+@ Date      : 10/02/2023
+@ About     : This script is used to interact the MTR Next train information and telegram
+@ Remark    : The chat id and bot id have been ignored since the personal issue
+"""
+
 # Library
 import asyncio
 from datetime import datetime
@@ -19,7 +26,17 @@ allowable_order = []
 allowable_data = []
 telepot_bot = telepot.Bot(tt.tg_bot_id)
 
-def information(chat_msg):
+def timedelta_formatter(td):                             # defining the function
+    td_sec = td.seconds                                  # getting the seconds field of the timedelta
+    hour_count, rem = divmod(td_sec, 3600)               # calculating the total hours
+    minute_count, second_count = divmod(rem, 60)         # distributing the remainders
+    msg = "{} minutes, {} seconds".format(minute_count,second_count)
+    return msg 
+
+def Light_Rail(chat_msg):
+    pass
+
+def MTR(chat_msg):
     global telepot_bot, allowable_order, allowable_data
     # ---------------------------- Data from Station on the Line ----------------------------
     msg = requests.get("https://rt.data.gov.hk/v1/transport/mtr/getSchedule.php?line="+str(hc.user_line)+"&sta="+str(hc.user_sta))
@@ -47,8 +64,9 @@ def information(chat_msg):
     # Information Function from user input
     if(str(text) == "Information" or str(text) == "information" or str(text) == "Info"or str(text) == "info"):
         print("Information Message Received!")
-        response = "[INFO]  The Next Train time information \nLine:                   " + info.line[hc.user_line] + " \nStation:           " + info.sta[hc.user_sta] + " \nDestination:      " + info.sta[hc.user_dest]
+        response = "[INFO]  The Next Train time information \nLine:                   " + info.line[hc.user_line] + " \nStation:             " + info.sta[hc.user_sta] + " \nDestination:    " + info.sta[hc.user_dest]
         telepot_bot.sendMessage(tt.chat_id, response)
+        time_diff = []
     # ---------------- Down Case ----------------
         if(hc.DIR == 'Down'):
             if(len(msg_dir_down) == 0):
@@ -62,12 +80,14 @@ def information(chat_msg):
                     if (msg_dir_down[i]['valid'] == 'Y' and datetime.strptime(msg_dir_up[i]['time'],"%Y-%m-%d %H:%M:%S") >= datetime.now()):
                         allowable_order.append(i)
                         allowable_data.append(msg_dir_down[i])
+                        time_diff.append(timedelta_formatter(datetime.strptime(msg_dir_up[i]['time'],"%Y-%m-%d %H:%M:%S")-datetime.now()))
                 #response = "[INFO] The Next Train time information in \nLine:            " + info.line[hc.user_line] + " \nStation:      " + info.sta[hc.user_sta]
                 #telepot_bot.sendMessage(tt.chat_id, response)
                 for i in range(len(allowable_data)):
-                    response = "Order :                " + allowable_data[i]['seq'] + "\n"
-                    response = response + "Destination :   " + allowable_data[i]['dest'] + "\n"
-                    response = response + "Arrive Time :   " + allowable_data[i]['time']
+                    response = "Order :                  " + allowable_data[i]['seq'] + "\n"
+                    response = response + "Destination :      " + allowable_data[i]['dest'] + "\n"
+                    response = response + "Arrive Time :      " + allowable_data[i]['time'] + "\n"
+                    response = response + "Next Train:         " + str(time_diff[i])
                     telepot_bot.sendMessage(tt.chat_id, response)
 
         # ---------------- Up Case----------------
@@ -84,12 +104,14 @@ def information(chat_msg):
                     if (msg_dir_up[i]['valid'] == 'Y' and datetime.strptime(msg_dir_up[i]['time'],"%Y-%m-%d %H:%M:%S") >= datetime.now()):
                         allowable_order.append(i)
                         allowable_data.append(msg_dir_up[i])
+                        time_diff.append(timedelta_formatter(datetime.strptime(msg_dir_up[i]['time'],"%Y-%m-%d %H:%M:%S")-datetime.now()))
                 #response = "[INFO] The Next Train time information in \nLine:            " + info.line[hc.user_line] + " \nStation:      " + info.sta[hc.user_sta]
-                telepot_bot.sendMessage(tt.chat_id, response)
+                #telepot_bot.sendMessage(tt.chat_id, response)
                 for i in range(len(allowable_data)):
-                    response = "Order :               " + allowable_data[i]['seq'] + "\n"
-                    response = response + "Destination :   " + allowable_data[i]['dest'] + "\n"
-                    response = response + "Arrive Time :   " + allowable_data[i]['time']
+                    response = "Order :                 " + allowable_data[i]['seq'] + "\n"
+                    response = response + "Destination :      " + allowable_data[i]['dest'] + "\n"
+                    response = response + "Arrive Time :      " + allowable_data[i]['time']
+                    response = response + "Next Train:         " + str(time_diff[i])
                     telepot_bot.sendMessage(tt.chat_id, response)
 
         # ---------------- No Data Case ----------------
@@ -166,7 +188,7 @@ def information(chat_msg):
             response = response + "Station:             " + hc.user_sta + "\n"
             response = response + "Destination:     " + hc.user_dest + "\n"
             telepot_bot.sendMessage(tt.chat_id, response)
-            information("Information")
+            MTR("Information")
     
     # Help function for user input
     elif(str(text) == "Help" or str(text) == "help"):
@@ -202,12 +224,16 @@ async def main():
     global telepot_bot
     bot = telegram.Bot(tt.tg_bot_id)
 
-    async with bot:
-        pass
+    #async with bot:
+        #pass
         #print(await bot.get_me())
         #await bot.send_message(text="Hello", chat_id=tt.chat_id)
 
 if __name__ == '__main__':
-    MessageLoop(telepot_bot, information).run_as_thread()
-    while(True):
-        asyncio.run(main())
+    try:
+        MessageLoop(telepot_bot, MTR).run_as_thread()
+        while(True):
+            #asyncio.run(main())
+            time.sleep(1)
+    except:
+        print("Error and Exit")
